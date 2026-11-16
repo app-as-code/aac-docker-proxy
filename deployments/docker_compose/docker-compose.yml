@@ -1,0 +1,57 @@
+services:
+  # --- Main Application Service ---
+  aac-docker-proxy:
+    image: "ghcr.io/tecnativa/docker-socket-proxy:v0.5.0"
+    container_name: "aac-docker-proxy"
+    hostname: "aac-docker-proxy"
+    restart: "always"
+
+
+    environment:
+      TZ: "Europe/Berlin"
+      CONTAINERS: "1"
+      PGID: "1000"
+      POST: "1"
+      PUID: "1000"
+      TASKS: "1"
+      SERVICES: "1"
+
+    ports:
+      - "2375:2375/tcp"
+
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+    networks:
+      - exposed
+      - interconnect
+      - stack_internal
+
+    labels:
+      auto-dns.createWildcard.aac-docker-proxy: "false"
+      auto-dns.customDNS.aac-docker-proxy: "true"
+      auto-dns.customDOMAIN.aac-docker-proxy: "example.com"
+      auto-dns.customHost.aac-docker-proxy: "aac-docker-proxy"
+      homepage.group: "Container - Socket-Proxy"
+      homepage.name: "Docker Proxy"
+      homepage.href: "#"
+      homepage.icon: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/docker.png"
+      homepage.description: "A secure proxy for the Docker socket, limiting API endpoint exposure."
+
+
+
+
+networks:
+  secured:
+    name: "services-secured"
+    external: true
+  exposed:
+    name: "services-exposed"
+    external: true
+  interconnect:
+    name: "docker-default"
+    external: true
+  stack_internal:
+    name: "aac-docker-proxy_stack_internal"
+    driver: "bridge"
+

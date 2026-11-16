@@ -1,0 +1,72 @@
+service:
+  name: aac-docker-proxy
+  image_repo: ghcr.io/tecnativa/docker-socket-proxy
+  image_tag: v0.5.0
+  description: A secure proxy for the Docker socket, limiting API endpoint exposure.
+  icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/docker.png
+  category: Container - Socket-Proxy
+  stage: prod
+  hostname: '{{ service.name }}'
+ports:
+- name: proxy
+  port: 2375
+  protocol: TCP
+  external_port: 2375
+config:
+  domain_name: example.com
+  generate_hostname: false
+  integrations:
+    homepage:
+      enabled: true
+      href: '#'
+    autodns:
+      enabled: true
+    traefik:
+      enabled: false
+  schema_version: 2
+volumes:
+  docker_sock:
+    type: bind
+    source: /var/run/docker.sock
+deployment_strategy:
+  main:
+    enabled: true
+    target_stage: prod
+  dev:
+    enabled: true
+    target_stage: dev
+  test:
+    enabled: false
+    target_stage: test
+  ansible-dev:
+    enabled: true
+    target_stage: dev
+  iac-dev:
+    enabled: true
+    target_stage: dev
+  template-dev:
+    enabled: true
+    target_stage: dev
+deployments:
+  docker_compose:
+    host_base_path: /export/docker
+    restart_policy: always
+    volumes:
+    - docker_sock:/var/run/docker.sock
+    environment:
+      TZ: '{{ vars.TZ }}'
+      CONTAINERS: '{{ vars.CONTAINERS }}'
+      PGID: '{{ vars.PGID }}'
+      POST: '{{ vars.POST }}'
+      PUID: '{{ vars.PUID }}'
+      TASKS: '{{ vars.TASKS }}'
+      SERVICES: '{{ vars.SERVICES }}'
+vars:
+  TZ: Europe/Berlin
+  CONTAINERS: '1'
+  PGID: '1000'
+  POST: '1'
+  PUID: '1000'
+  TASKS: '1'
+  SERVICES: '1'
+secrets: {}
